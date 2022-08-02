@@ -12,28 +12,21 @@ void initializePassengers(Plane *plane);
 void addPassenger(Plane *plane, std::string rowSeat, std::string passenger);
 void printPassengers(Plane *plane);
 void mapRowSeat(std::string const &rowSeat, int &row, int &seat);
+void printFlights(const Flight *flights, const int numFlights);
+int interactWithUser(Flight *flights, const int numFlights);
+void printMenuHeader();
+int getFirstUserInput();
+int getUserFlightNo(Flight *flights);
+void addUserPassenger(Flight *flights, const int flightNo);
+
 int main()
 {
-    /*
-    It may only contain:
-        a declaration of Flight* named flights,
-        a declaration of an int named numFlights,
-        function calls,
-        one while loop,
-        and a return statement
-    */
     std::ifstream inputFileStream("reservations.txt");
     int numFlights = getNumberOfFlights(inputFileStream);
     Flight *flights = new Flight[numFlights]; // free memory before main returns
     getFlightInfo(inputFileStream, flights, numFlights);
-    for (int i = 0; i < numFlights; ++i)
-    {
-        std::cout << "flights at " << i << " :" << std::endl;
-        std::cout << "number = " << flights[i].flightNum;
-        std::cout << " , origin = " << flights[i].origin;
-        std::cout << ", dest = " << flights[i].destination << std::endl;
-        printPassengers(flights[i].plane);
-    }
+    printFlights(flights, numFlights);
+    interactWithUser(flights, numFlights);
     return 0;
 }
 
@@ -180,4 +173,49 @@ void mapRowSeat(std::string const &rowSeat, int &row, int &seat)
         row = r - 1;
         seat = c - 'A';
     }
+}
+
+void printFlights(const Flight *flights, const int numFlights)
+{
+    for (int i = 0; i < numFlights; ++i)
+    {
+        std::cout << "flights at " << i << " :" << std::endl;
+        std::cout << "number = " << flights[i].flightNum;
+        std::cout << " , origin = " << flights[i].origin;
+        std::cout << ", dest = " << flights[i].destination << std::endl;
+        printPassengers(flights[i].plane);
+    }
+}
+
+int interactWithUser(Flight *flights, const int numFlights)
+{
+    printMenuHeader();
+    int firstUserInput = getFirstUserInput();
+    // if (firstUserInput == 1) // change if to while
+    //{
+    //     int flightNo = getUserFlightNo(flights);
+    //     addUserPassenger(flights, flightNo);
+    // }
+    return firstUserInput;
+}
+
+void printMenuHeader()
+{
+    std::cout << "ECS Flight Reservation Menu" << std::endl;
+    std::cout << "0. Exit" << std::endl;
+    std::cout << "1. Add Passenger." << std::endl;
+}
+
+int getFirstUserInput()
+{
+    return 1;
+}
+
+int getUserFlightNo(Flight *flights)
+{
+    return 221;
+}
+
+void addUserPassenger(Flight *flights, const int flightNo)
+{
 }
