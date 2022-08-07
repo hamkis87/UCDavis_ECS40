@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <sstream>
 #include <string.h>
@@ -18,6 +19,8 @@ void printMenuHeader();
 int getFirstUserInput();
 int getUserFlightNo(Flight *flights);
 void addUserPassenger(Flight *flights, const int flightNo);
+int getNumber(std::string line);
+void printFlightsInfo(const Flight *flights, const int numFlights);
 
 int main()
 {
@@ -25,7 +28,7 @@ int main()
     int numFlights = getNumberOfFlights(inputFileStream);
     Flight *flights = new Flight[numFlights]; // free memory before main returns
     getFlightInfo(inputFileStream, flights, numFlights);
-    printFlights(flights, numFlights);
+    // printFlights(flights, numFlights);
     interactWithUser(flights, numFlights);
     return 0;
 }
@@ -44,7 +47,7 @@ int getNumberOfFlights(std::ifstream &inputFileStream)
         stringStream << numFlightsAsString &&
         stringStream >> numFlights)
     {
-        std::cout << "No. of flights is " << numFlights << std::endl;
+        // std::cout << "No. of flights is " << numFlights << std::endl;
         return numFlights;
     }
     else
@@ -191,11 +194,13 @@ int interactWithUser(Flight *flights, const int numFlights)
 {
     printMenuHeader();
     int firstUserInput = getFirstUserInput();
-    // if (firstUserInput == 1) // change if to while
-    //{
-    //     int flightNo = getUserFlightNo(flights);
-    //     addUserPassenger(flights, flightNo);
-    // }
+    // std::cout << "firstUserInput: " << firstUserInput << std::endl;
+    if (firstUserInput == 1)
+    {
+        printFlightsInfo(flights, numFlights);
+        // int flightNo = getUserFlightNo(flights);
+        // addUserPassenger(flights, flightNo);
+    }
     return firstUserInput;
 }
 
@@ -203,12 +208,31 @@ void printMenuHeader()
 {
     std::cout << "ECS Flight Reservation Menu" << std::endl;
     std::cout << "0. Exit" << std::endl;
-    std::cout << "1. Add Passenger." << std::endl;
+    std::cout << "1. Add Passenger." << std::endl
+              << std::endl;
 }
 
 int getFirstUserInput()
 {
-    return 1;
+    while (true)
+    {
+        std::cout << "Please enter your choice: ";
+        std::string line;
+        std::getline(std::cin, line);
+        int choice = getNumber(line);
+        if (choice == 0 || choice == 1)
+            return choice;
+        else if (choice == -1)
+        {
+            std::cout << "Your number is invalid." << std::endl;
+        }
+        else
+        {
+            std::cout << choice << " is not an available choice." << std::endl;
+        }
+        std::cout << "Please try again." << std::endl
+                  << std::endl;
+    }
 }
 
 int getUserFlightNo(Flight *flights)
@@ -218,4 +242,29 @@ int getUserFlightNo(Flight *flights)
 
 void addUserPassenger(Flight *flights, const int flightNo)
 {
+}
+
+int getNumber(std::string line)
+{
+    std::stringstream stringStream(line);
+    int number;
+    char c;
+    if (stringStream >> number && !(stringStream >> c))
+        return number;
+    return -1;
+}
+
+void printFlightsInfo(const Flight *flights, const int numFlights)
+{
+    std::cout << std::left << std::setw(6) << "Flt#";
+    std::cout << std::left << std::setw(20) << "Origin";
+    std::cout << std::left << std::setw(20) << "Destination" << std::endl;
+    for (int i = 0; i < numFlights; ++i)
+    {
+        Flight flight = flights[i];
+        std::cout << std::left << std::setw(6) << flight.flightNum;
+        std::cout << std::left << std::setw(20) << flight.origin;
+        std::cout << std::left << std::setw(20) << flight.destination << std::endl;
+    }
+    std::cout << std::endl;
 }
