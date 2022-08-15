@@ -18,8 +18,8 @@ int interactWithUser(Flight *flights, const int numFlights);
 void printMenuHeader();
 int getFirstUserInput();
 int getUserFlightNo(Flight *flights);
-void addUserPassenger(Flight *flights, const int flightNo);
-int getNumber(std::string line);
+bool addUserPassenger(Flight *flights, const int numFlights);
+void addPassengerInfo(const Flight *flights, const int flightNo) int getNumber(std::string line);
 void printFlightsInfo(const Flight *flights, const int numFlights);
 
 int main()
@@ -198,8 +198,9 @@ int interactWithUser(Flight *flights, const int numFlights)
     if (firstUserInput == 1)
     {
         printFlightsInfo(flights, numFlights);
-        // int flightNo = getUserFlightNo(flights);
-        // addUserPassenger(flights, flightNo);
+        if (addUserPassenger(flights, numFlights))
+        {
+        }
     }
     return firstUserInput;
 }
@@ -235,13 +236,46 @@ int getFirstUserInput()
     }
 }
 
-int getUserFlightNo(Flight *flights)
+int getUserFlightNo(Flight *flights, const int flightNo)
 {
     return 221;
 }
 
-void addUserPassenger(Flight *flights, const int flightNo)
+bool addUserPassenger(Flight *flights, const int numFlights)
 {
+    while (true)
+    {
+        std::cout << "Flight number (0 = exit): ";
+        std::string line;
+        std::getline(std::cin, line);
+        int choice = getNumber(line);
+        if (choice == 0)
+            return false;
+        else if (choice == -1)
+        {
+            std::cout << "Your number is invalid." << std::endl;
+            std::cout << "Please try again." << std::endl
+                      << std::endl;
+        }
+        else if (isValidFlightNo(choice, flights, numFlights))
+        {
+            addPassengerInfo(flights, choice);
+            return true;
+        }
+        else
+        {
+            std::cout << "We do not have a flight number " << choice
+                      << "." << std::endl;
+            std::cout << "Please try again." << std::endl;
+        }
+    }
+}
+
+void addPassengerInfo(const Flight *flights, const int flightNo)
+{
+    std::cout << "Please enter the name of the passenger: ";
+    std::string passenger;
+    std::getline(std::cin, passenger);
 }
 
 int getNumber(std::string line)
