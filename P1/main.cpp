@@ -19,8 +19,19 @@ void printMenuHeader();
 int getFirstUserInput();
 int getUserFlightNo(Flight *flights);
 bool addUserPassenger(Flight *flights, const int numFlights);
-void addPassengerInfo(const Flight *flights, const int flightNo) int getNumber(std::string line);
+bool isValidFlightNo(const Flight *flights, int flightNo, int numFlights, int &flightIndex);
+bool isValidRow(Flight *flight, int row);
+void addPassengerInfo(Flight *flight);
+bool reserveSeat(Flight *flight);
+bool hasVacantSeat(Flight *flight, int row);
+bool isValidSeatLetter(Flight *flight, int row, char letter);
+bool isVacantSeat(Flight *flight, int row, char letter);
+char getSeatLetter();
+int getRow();
+int getNumber(std::string line);
+std::string getPassengerName();
 void printFlightsInfo(const Flight *flights, const int numFlights);
+void printFlightSeating(Flight *flight);
 
 int main()
 {
@@ -245,6 +256,7 @@ bool addUserPassenger(Flight *flights, const int numFlights)
 {
     while (true)
     {
+        int flightIndex;
         std::cout << "Flight number (0 = exit): ";
         std::string line;
         std::getline(std::cin, line);
@@ -254,28 +266,34 @@ bool addUserPassenger(Flight *flights, const int numFlights)
         else if (choice == -1)
         {
             std::cout << "Your number is invalid." << std::endl;
-            std::cout << "Please try again." << std::endl
-                      << std::endl;
         }
-        else if (isValidFlightNo(choice, flights, numFlights))
+        else if (isValidFlightNo(flights, choice, numFlights, flightIndex))
         {
-            addPassengerInfo(flights, choice);
+            std::cout << "flight index " << flightIndex << " has number " << choice << std::endl;
+            // addPassengerInfo(&(flights[flightIndex]));
             return true;
         }
         else
         {
-            std::cout << "We do not have a flight number " << choice
-                      << "." << std::endl;
-            std::cout << "Please try again." << std::endl;
+            std::cout << "We do not have a flight number ";
+            std::cout << choice << "." << std::endl;
         }
+        std::cout << "Please try again." << std::endl
+                  << std::endl;
     }
 }
 
-void addPassengerInfo(const Flight *flights, const int flightNo)
+void addPassengerInfo(Flight *flight)
 {
-    std::cout << "Please enter the name of the passenger: ";
-    std::string passenger;
-    std::getline(std::cin, passenger);
+    std::string passenger = getPassengerName();
+    printFlightSeating(flight);
+    while (true)
+    {
+        if (reserveSeat(flight))
+            break;
+
+        std::cout << "Please try again." << std::endl;
+    }
 }
 
 int getNumber(std::string line)
@@ -301,4 +319,66 @@ void printFlightsInfo(const Flight *flights, const int numFlights)
         std::cout << std::left << std::setw(20) << flight.destination << std::endl;
     }
     std::cout << std::endl;
+}
+
+std::string getPassengerName()
+{
+    std::string passengerName;
+    std::cout << "Please enter the name of the passenger: ";
+    std::getline(std::cin, passengerName);
+    return passengerName;
+}
+
+bool reserveSeat(Flight *flight)
+{
+    bool result = false;
+    int row = getRow();
+    if (!isValidRow(flight, row))
+    {
+        std::cout << "There is no row #" << row << " on this flight.";
+    }
+    else if (!hasVacantSeat(flight, row))
+    {
+        std::cout << "Row #" << row << " is full!";
+    }
+    else
+    {
+        char letter = getSeatLetter();
+        if (!isValidSeatLetter(flight, row, letter))
+        {
+            std::cout << "Letter #" << letter << " does not exist";
+        }
+        else if (!isVacantSeat(flight, row, letter))
+        {
+            std::cout << " That seat is already occupied.";
+        }
+        else
+            return !result;
+    }
+    std::cout << std::endl;
+    std::cout << "Please try again." << std::endl;
+    return result;
+}
+
+int getRow()
+{
+    std::cout << "Please enter the row of the seat you wish to reserve: ";
+    std::string rowStr;
+    std::getline(std::cin, rowStr);
+    return getNumber(rowStr);
+}
+
+bool isValidFlightNo(const Flight *flights, int flightNo,
+                     int numFlights, int &flightIndex)
+{
+    bool result = false;
+    for (int i = 0; i < numFlights; ++i)
+    {
+        if (flights[i].flightNum == flightNo)
+        {
+            flightIndex = i;
+            return true;
+        }
+    }
+    return result;
 }
