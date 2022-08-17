@@ -22,7 +22,7 @@ bool addUserPassenger(Flight *flights, const int numFlights);
 bool isValidFlightNo(const Flight *flights, int flightNo, int numFlights, int &flightIndex);
 bool isValidRow(Flight *flight, int row);
 void addPassengerInfo(Flight *flight);
-bool reserveSeat(Flight *flight);
+bool reserveSeat(Flight *flight, int *seat, char *letter);
 bool hasVacantSeat(Flight *flight, int row);
 bool isValidSeatLetter(Flight *flight, int row, char letter);
 bool isVacantSeat(Flight *flight, int row, char letter);
@@ -32,6 +32,7 @@ int getNumber(std::string line);
 std::string getPassengerName();
 void printFlightsInfo(const Flight *flights, const int numFlights);
 void printFlightSeating(Flight *flight);
+void printPlaneHeader(int width);
 
 int main()
 {
@@ -270,7 +271,7 @@ bool addUserPassenger(Flight *flights, const int numFlights)
         else if (isValidFlightNo(flights, choice, numFlights, flightIndex))
         {
             std::cout << "flight index " << flightIndex << " has number " << choice << std::endl;
-            // addPassengerInfo(&(flights[flightIndex]));
+            addPassengerInfo(&(flights[flightIndex]));
             return true;
         }
         else
@@ -289,10 +290,34 @@ void addPassengerInfo(Flight *flight)
     printFlightSeating(flight);
     while (true)
     {
-        if (reserveSeat(flight))
+        int seat;
+        char letter;
+        if (reserveSeat(flight, *seat, *letter)) // if(isFullyBooked() || reserveSeat(flight))
+        {
+            addPassengerAt(flight, passenger, seat, letter);
             break;
+        }
+    }
+}
 
-        std::cout << "Please try again." << std::endl;
+void printFlightSeating(Flight *flight)
+{
+    Plane *plane = flight->plane;
+    int rows = plane->rows;
+    int width = plane->width;
+    printPlaneHeader(width);
+    for (int i = 0; i < rows; ++i)
+    {
+        std::cout << " ";
+        std::cout << std::left << std::setw(4) << i + 1;
+        for (int j = 0; j < width; ++j)
+        {
+            if (plane->passengers[i][j] != nullptr)
+                std::cout << "X";
+            else
+                std::cout << "-";
+        }
+        std::cout << std::endl;
     }
 }
 
@@ -329,9 +354,8 @@ std::string getPassengerName()
     return passengerName;
 }
 
-bool reserveSeat(Flight *flight)
+bool reserveSeat(Flight *flight, int *seat, char *letter)
 {
-    bool result = false;
     int row = getRow();
     if (!isValidRow(flight, row))
     {
@@ -353,11 +377,11 @@ bool reserveSeat(Flight *flight)
             std::cout << " That seat is already occupied.";
         }
         else
-            return !result;
+            return true;
     }
     std::cout << std::endl;
     std::cout << "Please try again." << std::endl;
-    return result;
+    return false;
 }
 
 int getRow()
@@ -381,4 +405,15 @@ bool isValidFlightNo(const Flight *flights, int flightNo,
         }
     }
     return result;
+}
+
+void printPlaneHeader(int width)
+{
+    std::cout << std::left << std::setw(5) << "Row#";
+    char ch = 'A';
+    for (int i = 0; i < width; ++i)
+    {
+        std::cout << ch++;
+    }
+    std::cout << std::endl;
 }
