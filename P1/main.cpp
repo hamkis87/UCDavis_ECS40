@@ -292,9 +292,9 @@ void addPassengerInfo(Flight *flight)
     {
         int seat;
         char letter;
-        if (reserveSeat(flight, *seat, *letter)) // if(isFullyBooked() || reserveSeat(flight))
+        if (reserveSeat(flight, &seat, &letter)) // if(isFullyBooked() || reserveSeat(flight))
         {
-            addPassengerAt(flight, passenger, seat, letter);
+            // addPassengerAt(flight, passenger, seat, letter);
             break;
         }
     }
@@ -367,6 +367,8 @@ bool reserveSeat(Flight *flight, int *seat, char *letter)
     }
     else
     {
+        // remove the below line
+        std::cout << "valid row with empty seat(s)" << std::endl;
         char letter = getSeatLetter();
         if (!isValidSeatLetter(flight, row, letter))
         {
@@ -395,7 +397,6 @@ int getRow()
 bool isValidFlightNo(const Flight *flights, int flightNo,
                      int numFlights, int &flightIndex)
 {
-    bool result = false;
     for (int i = 0; i < numFlights; ++i)
     {
         if (flights[i].flightNum == flightNo)
@@ -404,7 +405,7 @@ bool isValidFlightNo(const Flight *flights, int flightNo,
             return true;
         }
     }
-    return result;
+    return false;
 }
 
 void printPlaneHeader(int width)
@@ -416,4 +417,39 @@ void printPlaneHeader(int width)
         std::cout << ch++;
     }
     std::cout << std::endl;
+}
+
+bool isValidRow(Flight *flight, int row)
+{
+    return ((0 < row) && (row <= flight->plane->rows));
+}
+
+bool hasVacantSeat(Flight *flight, int row)
+{
+    Plane *plane = flight->plane;
+    for (int i = 0; i < flight->plane->width; ++i)
+    {
+        if (plane->passengers[row - 1][i] == nullptr)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool isValidSeatLetter(Flight *flight, int row, char letter)
+{
+    int letterAsInt = letter - 'A';
+    return (0 <= letterAsInt) && (letterAsInt < flight->plane->width);
+}
+
+bool isVacantSeat(Flight *flight, int row, char letter)
+{
+    int letterAsInt = letter - 'A';
+    return (flight->plane->passengers[row - 1][letterAsInt] == nullptr);
+}
+
+char getSeatLetter()
+{
+    return 'B';
 }
