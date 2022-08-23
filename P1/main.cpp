@@ -22,7 +22,7 @@ bool addUserPassenger(Flight *flights, const int numFlights);
 bool isValidFlightNo(const Flight *flights, int flightNo, int numFlights, int &flightIndex);
 bool isValidRow(Flight *flight, int row);
 void addPassengerInfo(Flight *flight);
-bool reserveSeat(Flight *flight, int *seat, char *letter);
+bool reserveSeat(Flight *flight, int *row, char *letter);
 bool hasVacantSeat(Flight *flight, int row);
 bool isValidSeatLetter(Flight *flight, int row, char letter);
 bool isVacantSeat(Flight *flight, int row, char letter);
@@ -204,17 +204,22 @@ void printFlights(const Flight *flights, const int numFlights)
 
 int interactWithUser(Flight *flights, const int numFlights)
 {
-    printMenuHeader();
-    int firstUserInput = getFirstUserInput();
-    // std::cout << "firstUserInput: " << firstUserInput << std::endl;
-    if (firstUserInput == 1)
+    while (true)
     {
-        printFlightsInfo(flights, numFlights);
-        if (addUserPassenger(flights, numFlights))
+        printMenuHeader();
+        int firstUserInput = getFirstUserInput();
+        // std::cout << "firstUserInput: " << firstUserInput << std::endl;
+        if (firstUserInput == 1)
         {
+            printFlightsInfo(flights, numFlights);
+            if (!addUserPassenger(flights, numFlights))
+            {
+                return 0;
+            }
         }
+        else
+            return 0;
     }
-    return firstUserInput;
 }
 
 void printMenuHeader()
@@ -290,11 +295,17 @@ void addPassengerInfo(Flight *flight)
     printFlightSeating(flight);
     while (true)
     {
-        int seat;
+        int row;
         char letter;
-        if (reserveSeat(flight, &seat, &letter)) // if(isFullyBooked() || reserveSeat(flight))
+        if (reserveSeat(flight, &row, &letter)) // if(isFullyBooked() || reserveSeat(flight))
         {
-            // addPassengerAt(flight, passenger, seat, letter);
+            std::cout << "seat is: row " << row << " letter: " << letter << std::endl;
+            std::stringstream seatStream;
+            std::string seatStr;
+            seatStream << row << letter;
+            seatStream >> seatStr;
+            addPassenger(flight->plane, seatStr, passenger);
+            printFlightSeating(flight);
             break;
         }
     }
@@ -354,27 +365,28 @@ std::string getPassengerName()
     return passengerName;
 }
 
-bool reserveSeat(Flight *flight, int *seat, char *letter)
+bool reserveSeat(Flight *flight, int *row, char *letter)
 {
-    int row = getRow();
-    if (!isValidRow(flight, row))
+    *row = getRow();
+    if (!isValidRow(flight, *row))
     {
-        std::cout << "There is no row #" << row << " on this flight.";
+        std::cout << "There is no row #" << *row << " on this flight.";
     }
-    else if (!hasVacantSeat(flight, row))
+    else if (!hasVacantSeat(flight, *row))
     {
-        std::cout << "Row #" << row << " is full!";
+        std::cout << "Row #" << *row << " is full!";
     }
     else
     {
         // remove the below line
-        std::cout << "valid row with empty seat(s)" << std::endl;
-        char letter = getSeatLetter();
-        if (!isValidSeatLetter(flight, row, letter))
+        std::cout << "Please enter the seat letter you wish";
+        std::cout << " to reserve on row #" << *row << ": ";
+        *letter = getSeatLetter();
+        if (!isValidSeatLetter(flight, *row, *letter))
         {
-            std::cout << "Letter #" << letter << " does not exist";
+            std::cout << "Input letter does not exist";
         }
-        else if (!isVacantSeat(flight, row, letter))
+        else if (!isVacantSeat(flight, *row, *letter))
         {
             std::cout << " That seat is already occupied.";
         }
@@ -451,5 +463,12 @@ bool isVacantSeat(Flight *flight, int row, char letter)
 
 char getSeatLetter()
 {
-    return 'B';
+    std::string line;
+    std::stringstream stringStream;
+    char letter, remaining;
+    if (getline(std::cin, line) && (stringStream << line) && (stringStream >> letter) && !(stringStream >> remaining))
+    {
+        return letter;
+    }
+    return 'a';
 }
