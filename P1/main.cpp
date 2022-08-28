@@ -7,8 +7,10 @@
 #include "plane.h"
 
 int getNumberOfFlights(std::ifstream &inputFileStream);
-bool getFlightInfo(std::ifstream &inputFileStream, Flight *flights, int numFlights);
+bool getFlightsInfo(std::ifstream &inputFileStream, Flight *flights, int numFlights);
+bool putFlightsInfo(std::ofstream &outputFileStream, Flight *flights, int numFlights);
 bool getPlaneInfo(std::ifstream &inputFileStream, Plane *plane);
+bool putPlaneInfo(std::ofstream &outputFileStream, Plane *plane);
 void initializePassengers(Plane *plane);
 void addPassenger(Plane *plane, std::string rowSeat, std::string passenger);
 void printPassengers(Plane *plane);
@@ -38,11 +40,13 @@ bool isFullyReserved(Flight *flight);
 int main()
 {
     std::ifstream inputFileStream("reservations.txt");
+    std::ofstream outputFileStream("reservations2.txt");
     int numFlights = getNumberOfFlights(inputFileStream);
     Flight *flights = new Flight[numFlights]; // free memory before main returns
-    getFlightInfo(inputFileStream, flights, numFlights);
+    getFlightsInfo(inputFileStream, flights, numFlights);
     // printFlights(flights, numFlights);
     interactWithUser(flights, numFlights);
+    putFlightsInfo(outputFileStream, flights, numFlights);
     return 0;
 }
 
@@ -70,7 +74,7 @@ int getNumberOfFlights(std::ifstream &inputFileStream)
     }
 }
 
-bool getFlightInfo(std::ifstream &inputFileStream, Flight *flights, int numFlights)
+bool getFlightsInfo(std::ifstream &inputFileStream, Flight *flights, int numFlights)
 {
     for (int id = 0; id < numFlights; ++id)
     {
@@ -495,4 +499,44 @@ bool isFullyReserved(Flight *flight)
 {
     return flight->plane->reserved ==
            flight->plane->rows * flight->plane->width;
+}
+
+bool putFlightsInfo(std::ofstream &outputFileStream, Flight *flights, int numFlights)
+{
+    outputFileStream << numFlights;
+    for (int id = 0; id < numFlights; ++id)
+    {
+        Flight flight = flights[id];
+        outputFileStream << std::endl
+                         << flight.flightNum;
+        outputFileStream << std::endl
+                         << flight.origin;
+        outputFileStream << std::endl
+                         << flight.destination;
+        putPlaneInfo(outputFileStream, flight.plane);
+    }
+    return true;
+}
+
+bool putPlaneInfo(std::ofstream &outputFileStream, Plane *plane)
+{
+    outputFileStream << std::endl
+                     << plane->rows << " ";
+    outputFileStream << plane->width << " ";
+    outputFileStream << plane->reserved;
+    for (int i = 0; i < plane->rows; ++i)
+    {
+        for (int j = 0; j < plane->width; ++j)
+        {
+            char *passenger = plane->passengers[i][j];
+            if (passenger != nullptr)
+            {
+                char seat = 'A' + j;
+                outputFileStream << std::endl
+                                 << i + 1 << seat << " ";
+                outputFileStream << passenger;
+            }
+        }
+    }
+    return true;
 }
