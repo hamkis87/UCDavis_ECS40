@@ -39,12 +39,10 @@ bool getPlaneInfo(std::ifstream &inputFileStream, Plane *plane)
             std::cout << "Error reading Plane rows/width/reserved." << std::endl;
             return false;
         }
-        // std::cout << "row and seat letter: " << s << "." << std::endl;
         std::getline(ss, r);
         rs << r;
         rs >> std::ws;
         std::getline(rs, p);
-        // std::cout << "passenger name: " << p << "." << std::endl;
         addPassenger(plane, s, p);
     }
     return true;
@@ -67,9 +65,10 @@ void addPassenger(Plane *plane, std::string rowSeat, std::string passenger)
 {
     int row, seat;
     mapRowSeat(rowSeat, row, seat);
-    plane->passengers[row][seat] = new char[passenger.length()];
+    plane->passengers[row][seat] = new char[passenger.length() + 1];
     for (int i = 0; i < passenger.length(); i++)
         plane->passengers[row][seat][i] = passenger.at(i);
+    plane->passengers[row][seat][passenger.length()] = '\0';
 }
 
 bool putPlaneInfo(std::ofstream &outputFileStream, Plane *plane)
@@ -82,13 +81,12 @@ bool putPlaneInfo(std::ofstream &outputFileStream, Plane *plane)
     {
         for (int j = 0; j < plane->width; ++j)
         {
-            char *passenger = plane->passengers[i][j];
-            if (passenger != nullptr)
+            if (plane->passengers[i][j] != nullptr)
             {
                 char seat = 'A' + j;
                 outputFileStream << std::endl
                                  << i + 1 << seat << " ";
-                outputFileStream << passenger;
+                outputFileStream << plane->passengers[i][j];
             }
         }
     }
@@ -142,7 +140,6 @@ bool reserveSeat(Plane *plane, int *row, char *letter)
     }
     else
     {
-        // remove the below line
         std::cout << "Please enter the seat letter you wish";
         std::cout << " to reserve on row #" << *row << ": ";
         *letter = getSeatLetter();
@@ -164,4 +161,22 @@ bool reserveSeat(Plane *plane, int *row, char *letter)
     std::cout << "Please try again." << std::endl
               << std::endl;
     return false;
+}
+
+void deallocatePlane(Plane *plane)
+{
+    char ***passengers = plane->passengers;
+    for (int i = 0; i < plane->rows; ++i)
+    {
+        for (int j = 0; j < plane->width; ++j)
+        {
+            // if (passengers[i][j] != nullptr)
+            //{
+            delete[] passengers[i][j];
+            //}
+        }
+        delete[] passengers[i];
+    }
+    delete[] passengers;
+    delete plane;
 }

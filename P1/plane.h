@@ -25,5 +25,6 @@ bool isValidRow(Plane *plane, int row);
 bool hasVacantSeat(Plane *plane, int row);
 bool isValidSeatLetter(Plane *plane, int row, char letter);
 bool isVacantSeat(Plane *plane, int row, char letter);
+void deallocatePlane(Plane *plane);
 
 #endif

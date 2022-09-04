@@ -6,6 +6,7 @@ bool getFlightsInfo(std::ifstream &inputFileStream, Flight *flights, int numFlig
     for (int id = 0; id < numFlights; ++id)
     {
         Flight *flight = new Flight;
+        std::cout << "flight" << id << " address: " << flight << std::endl;
         flight->plane = new Plane;
         std::string flightNumAsString, origin, destination;
         std::stringstream stringStream;
@@ -24,14 +25,16 @@ bool getFlightsInfo(std::ifstream &inputFileStream, Flight *flights, int numFlig
         }
         strcpy(flight->origin, origin.c_str());
         strcpy(flight->destination, destination.c_str());
+        //  copyStr(flight, origin, destination);
         if (!getPlaneInfo(inputFileStream, flight->plane))
         {
             std::cout << "Error reading Plane info." << std::endl;
             return false;
         }
         flights[id] = *flight;
+        delete flight;
     }
-
+    inputFileStream.close();
     return true;
 }
 
@@ -49,6 +52,7 @@ bool putFlightsInfo(std::ofstream &outputFileStream, Flight *flights, int numFli
                          << flight.destination;
         putPlaneInfo(outputFileStream, flight.plane);
     }
+    outputFileStream.close();
     return true;
 }
 
@@ -194,36 +198,13 @@ void printFlightSeating(Flight *flight)
               << std::endl;
 }
 
-// bool getFlightsInfo(std::ifstream &inputFileStream, Flight *flights, int numFlights)
-// {
-//     for (int id = 0; id < numFlights; ++id)
-//     {
-//         Flight *flight = new Flight;
-//         flight->plane = new Plane;
-//         std::string flightNumAsString, origin, destination;
-//         std::stringstream stringStream;
-//         if (!(getline(inputFileStream, flightNumAsString) &&
-//               (stringStream << flightNumAsString) &&
-//               (stringStream >> flight->flightNum)))
-//         {
-//             std::cout << "Error reading flight number." << std::endl;
-//             return false;
-//         }
-//         if (!(getline(inputFileStream, origin) &&
-//               getline(inputFileStream, destination)))
-//         {
-//             std::cout << "Error reading flight origin/destination." << std::endl;
-//             return false;
-//         }
-//         strcpy(flight->origin, origin.c_str());
-//         strcpy(flight->destination, destination.c_str());
-//         if (!getPlaneInfo(inputFileStream, flight->plane))
-//         {
-//             std::cout << "Error reading Plane info." << std::endl;
-//             return false;
-//         }
-//         flights[id] = *flight;
-//     }
-
-//     return true;
-// }
+void deallocateFlights(Flight **flightsP, const int numFlights)
+{
+    Flight *flights = *flightsP;
+    for (int i = 0; i < numFlights; ++i)
+    {
+        Flight *flight = &(flights[i]);
+        deallocatePlane(flight->plane);
+    }
+    delete[] flights;
+}

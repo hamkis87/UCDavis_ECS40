@@ -25,6 +25,8 @@ bool addUserPassenger(Flight *flights, const int numFlights);
 void printFlightsInfo(const Flight *flights, const int numFlights);
 void addPassengerInfo(Flight *flight);
 void printFlightSeating(Flight *flight);
+void deallocateFlights(Flight **flightsP, const int numFlights);
+void copyStr(Flight *flight, const std::string origin, const std::string destination);
 // bool getFlightsInfo(std::ifstream &inputFileStream, Flight *flights, int numFlights);
 
 #endif
