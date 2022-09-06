@@ -6,7 +6,6 @@ bool getFlightsInfo(std::ifstream &inputFileStream, Flight *flights, int numFlig
     for (int id = 0; id < numFlights; ++id)
     {
         Flight *flight = new Flight;
-        std::cout << "flight" << id << " address: " << flight << std::endl;
         flight->plane = new Plane;
         std::string flightNumAsString, origin, destination;
         std::stringstream stringStream;
